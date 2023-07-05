@@ -15,7 +15,7 @@ function App() {
 
         if (permission === "granted") {
           //prettier-ignore
-          const token = await getToken(messaging, { vapidKey: import.meta.env.vapidKey });
+          const token = await getToken(messaging, { vapidKey: import.meta.env.FIRE_BASE_VAPID_KEY });
           console.log(token);
         }
 

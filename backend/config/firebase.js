@@ -1,10 +1,10 @@
-const fcm = require("fcm-notification");
+const admin = require("firebase-admin");
 
-const firebase_config = {
+const serviceAccount = {
   type: "service_account",
   project_id: "push-notification-ef1e9",
-  private_key_id: process.env.PRIVATE_KEY_ID,
-  private_key: process.env.PRIVATE_KEY,
+  private_key_id: process.env.FIRE_BASE_PRIVATE_KEY_ID,
+  private_key: process.env.FIRE_BASE_PRIVATE_KEY,
   client_email:"firebase-adminsdk-51zhx@push-notification-ef1e9.iam.gserviceaccount.com",
   client_id: "102177002949320242666",
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
@@ -14,20 +14,25 @@ const firebase_config = {
   universe_domain: "googleapis.com",
 };
 
-const FCM = new fcm(firebase_config);
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 
-function sendFcm(body, tokens) {
-  const message = {
-    notification: {
-      title: body.title,
-      body: body.message,
-    },
+async function sendNotification(body, tokens) {
+  const options = {
+    priority: "high",
+    timeToLive: 60 * 60 * 24,
   };
 
-  FCM.sendToMultipleToken(message, tokens, (err, res) => {
-    if (err) console.log("fcm error: ", err);
-    else console.log("fcm response: ", res);
-  });
+  const notification = {
+    title: body.title,
+    body: body.message,
+    imageUrl:"https://png.pngtree.com/png-clipart/20190515/original/pngtree-announcement-icon-png-image_3660817.jpg",
+  };
+
+  try {
+    await admin.messaging().sendEachForMulticast({ tokens, notification }, options);
+  } catch (error) {
+    console.log("Error sending notification: ", error);
+  }
 }
 
-module.exports.sendFcm = sendFcm;
+module.exports.sendNotification = sendNotification;
