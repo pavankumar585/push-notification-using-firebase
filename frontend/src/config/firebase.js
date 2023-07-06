@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging } from "firebase/messaging";
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyB7WxMrQjuEEaCG3Edrda-TjHakGmF4Qqc",
   authDomain: "push-notification-ef1e9.firebaseapp.com",

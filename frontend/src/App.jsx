@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getToken } from "firebase/messaging";
+import { getToken, onMessage } from "firebase/messaging";
 import messaging from "./config/firebase";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
@@ -7,6 +7,23 @@ import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const messageListener = onMessage(messaging, (payload) => {
+      console.log("foreground message: ", payload);
+      const notificationTitle = payload.notification.title;
+      const notificationOptions = {
+        body: payload.notification.body,
+        icon: payload.notification.image,
+      };
+
+      new Notification(notificationTitle, notificationOptions);
+    });
+
+    return () => {
+      messageListener();
+    };
+  }, []);
 
   async function requestPermission() {
     if ("Notification" in window) {
