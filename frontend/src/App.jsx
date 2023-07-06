@@ -9,8 +9,14 @@ function App() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
+    console.log("count: ", count);
+  }, [count]);
+
+  useEffect(() => {
     const messageListener = onMessage(messaging, (payload) => {
-      console.log("foreground message: ", payload);
+      console.log("foreground-message: ", payload);
+      setCount((prevCount) => prevCount + 1);
+
       const notificationTitle = payload.notification.title;
       const notificationOptions = {
         body: payload.notification.body,
@@ -26,24 +32,20 @@ function App() {
   }, []);
 
   async function requestPermission() {
-    if ("Notification" in window) {
-      try {
-        const permission = await Notification.requestPermission();
+    try {
+      const permission = await Notification.requestPermission();
 
-        if (permission === "granted") {
-          //prettier-ignore
-          const token = await getToken(messaging, { vapidKey: import.meta.env.FIRE_BASE_VAPID_KEY });
-          console.log(token);
-        }
-
-        if (permission === "denied") {
-          alert("You denied permission for the notificatrion");
-        }
-      } catch (error) {
-        console.error("Error requesting notification permission:", error);
+      if (permission === "granted") {
+        //prettier-ignore
+        const token = await getToken(messaging, { vapidKey: import.meta.env.FIRE_BASE_VAPID_KEY });
+        console.log("token: ", token);
       }
-    } else {
-      console.error("Browser does not support notifications.");
+
+      if (permission === "denied") {
+        alert("You denied notification permission");
+      }
+    } catch (error) {
+      console.error("Error requesting notification permission:", error);
     }
   }
 
