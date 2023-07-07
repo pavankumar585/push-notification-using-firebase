@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
-Joi.objectId = require("joi-objectid")(Joi);
 
 const fcmTokenSchema = new mongoose.Schema({
-  user_id: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
@@ -17,7 +16,7 @@ const fcmTokenSchema = new mongoose.Schema({
 
 function validateFcmToken(fcmToken) {
   const schema = Joi.object({
-    user_id: Joi.objectId(),
+    user: Joi.objectId(),
     fcmToken: Joi.string().required().min(10).max(255),
   });
 

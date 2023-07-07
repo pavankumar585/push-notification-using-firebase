@@ -18,7 +18,7 @@ const otpSchema = new mongoose.Schema({
   },
   expiresIn: {
     type: Date,
-    default: moment().add(1, "minute"),
+    default: moment().add(30, "seconds"),
   },
 });
 

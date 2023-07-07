@@ -25,14 +25,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  isSuperAdmin: {
-    type: Boolean,
-    default: false,
-  },
+  roles: [
+    {
+      type: String,
+      default: "user",
+    },
+  ],
 });
 
 function validateUser(user) {

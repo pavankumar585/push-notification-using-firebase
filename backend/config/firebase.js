@@ -24,8 +24,7 @@ async function sendNotification(body, tokens) {
 
   const notification = {
     title: body.title,
-    body: body.message,
-    imageUrl:"https://png.pngtree.com/png-clipart/20190515/original/pngtree-announcement-icon-png-image_3660817.jpg",
+    body: body.message
   };
 
   try {
