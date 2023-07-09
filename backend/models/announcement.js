@@ -21,7 +21,7 @@ const announcementSchema = new mongoose.Schema(
 function validateAnnouncement(announcement) {
   const schema = Joi.object({
     user: Joi.objectId(),
-    description: Joi.string().required().min(10).max(1024),
+    description: Joi.string().required().min(10).max(1024).trim(),
   });
 
   return schema.validate(announcement);

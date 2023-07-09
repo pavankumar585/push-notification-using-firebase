@@ -17,7 +17,7 @@ const fcmTokenSchema = new mongoose.Schema({
 function validateFcmToken(fcmToken) {
   const schema = Joi.object({
     user: Joi.objectId(),
-    fcmToken: Joi.string().required().min(10).max(255),
+    fcmToken: Joi.string().required().min(10).max(255).trim(),
   });
 
   return schema.validate(fcmToken);

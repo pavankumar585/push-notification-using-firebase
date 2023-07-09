@@ -1,0 +1,76 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Email Verification
+    style
+      | body {
+      |   font-family: Arial, sans-serif;
+      |   margin: 0;
+      |   padding: 0;
+      | }
+      | .container {
+      |   max-width: 600px;
+      |   margin: 0 auto;
+      |   padding: 20px;
+      |   background-color: #fff;
+      |   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      | }
+      | .header {
+      |   text-align: center;
+      |   margin-bottom: 20px;
+      | }
+      | .logo {
+      |   max-width: 200px;
+      |   margin: 0 auto;
+      |   display: block;
+      | }
+      | .title {
+      |   color: #000;
+      |   font-size: 24px;
+      |   font-weight: bold;
+      |   margin: 0;
+      |   padding: 10px 0;
+      | }
+      | .content {
+      |   padding: 20px;
+      |   border-radius: 5px;
+      | }
+      | .message {
+      |   font-size: 16px;
+      |   color: #000;
+      |   margin: 0;
+      |   padding: 10px 0;
+      | }
+      | .otp {
+      |   font-size: 40px;
+      |   color: #3366cc;
+      |   margin: 0;
+      |   padding: 10px 0;
+      | }
+      | .note {
+      |   font-size: 14px;
+      |   color: #777;
+      |   margin: 10px 0;
+      | }
+      | .footer {
+      |   text-align: center;
+      |   padding: 20px;
+      |   margin-top: 20px;
+      |   color: #777;
+      |   font-size: 14px;
+      | }
+  body
+    .container
+      .header
+        img(src="https://repository-images.githubusercontent.com/1272424/d1995000-0ab7-11ea-8ed3-04a082c36b0d", alt="Logo", class="logo")
+        h2.title Email Verification
+      .content
+        p.message Dear User,
+        p.message Thank you for signing up! To complete your registration, please verify your email address by entering the OTP (One-Time Password) provided below:
+        h1.otp= otp
+        p.note This OTP is valid for a limited time. Do not share it with anyone.
+        p.note If you didn't sign up for an account, you can ignore this email.
+      .footer
+        | &copy; 2023 Pavan Corp. All rights reserved.
