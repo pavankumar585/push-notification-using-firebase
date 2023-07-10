@@ -57,12 +57,11 @@ async function verifyEmail(req, res) {
 
   await Otp.deleteOne({ email });
   await User.updateOne({ email }, { $set: { isVerified: true } });
+  user = await User.findOne({ email }).select("-password");
 
   const token = user.genAuthToken();
-  
-  user.isVerified = true;
-  user = user.toObject();
-  delete user.password;
+
+  await User.updateOne({ email }, { $set: { token } });
 
   res.setHeader("Authorization", `Bearer ${token}`);
   res.json({ status: true, data: user });

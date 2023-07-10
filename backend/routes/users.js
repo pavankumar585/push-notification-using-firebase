@@ -6,19 +6,26 @@ const validateId = require("../middleware/validateId");
 const { validate } = require("../models/user");
 const userController = require("../controllers/userController");
 const auth = require("../middleware/auth");
+const admin = require("../middleware/admin");
+const superAdmin = require("../middleware/superAdmin");
+const { validate: otpValidate } = require("../models/otp");
 
 router
   .route("/")
-  .get(userController.getAllUsers)
+  .get([admin], userController.getAllUsers)
   .post([validator(validate)], userController.createUser);
 
 router
   .route("/:id")
-  .get([validateId], userController.getOneUser)
-  .patch([validateId, validator(validateRequest)], userController.updateUser)
-  .delete([validateId], userController.deleteUser);
+  .get([validateId, admin], userController.getOneUser)
+  .patch([validateId, validator(validateRequest), auth], userController.updateUser)
+  .delete([validateId, superAdmin], userController.deleteUser);
 
 router.route("/find/me").get([auth], userController.getUser);
+
+router
+  .route("/find/change-email")
+  .post([validator(otpValidate), auth], userController.changeEmail);
 
 function validateRequest(req) {
   const schema = Joi.object({

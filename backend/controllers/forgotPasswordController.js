@@ -57,7 +57,7 @@ async function verifyEmail(req, res) {
 
   const token = user.genResetToken();
 
-  await Otp.findOneAndUpdate({ email }, { $set: { token } });
+  await Otp.updateOne({ email }, { $set: { token } });
 
   res.setHeader("x-reset-password-token", `Bearer ${token}`);
   res.json({ status: true, message: "Otp verified successfully" })
@@ -77,7 +77,7 @@ async function resetPassword(req, res) {
   await Otp.deleteOne({ email });
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
-  await User.findOneAndUpdate({ email }, { $set: { password: hashedPassword } });
+  await User.updateOne({ email }, { $set: { password: hashedPassword } });
 
   res.json({ status: true, message: "Password changed successfully" });
 }
