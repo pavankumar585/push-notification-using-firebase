@@ -36,10 +36,16 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.methods.genAuthToken = function () {
-  const key = process.env.JWT_PRIVATE_KEY;
-  const { _id, isVerified, roles } = this;
+  const privateKey = process.env.JWT_PRIVATE_KEY;
+  const { _id, email, roles } = this;
 
-  return jwt.sign({ _id, isVerified, roles }, key, { expiresIn: "1d" });
+  return jwt.sign({ _id, email, roles }, privateKey, { expiresIn: "5d" });
+};
+
+userSchema.methods.genResetToken = function () {
+  const privateKey = process.env.JWT_PRIVATE_KEY2;
+
+  return jwt.sign({ email: this.email }, privateKey, { expiresIn: "1d" });
 };
 
 function validateUser(user) {

@@ -2,35 +2,37 @@ const mongoose = require("mongoose");
 const moment = require("moment");
 const Joi = require("joi");
 
-const otpSchema = new mongoose.Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-      minlength: 10,
-      maxlength: 50,
-      unique: true,
-    },
-    otp: {
-      type: String,
-      required: true,
-      minlength: 4,
-      maxlength: 255,
-    },
-    expiresIn: {
-      type: Date,
-      default: moment().add(2, "minutes"),
-    },
-    isVerified: Boolean,
+const otpSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    minlength: 10,
+    maxlength: 50,
+    unique: true,
   },
-  { timestamps: true }
-);
+  otp: {
+    type: String,
+    required: true,
+    minlength: 4,
+    maxlength: 255,
+  },
+  expiresIn: {
+    type: Date,
+    default: function () {
+      return moment().add(1, "minute");
+    },
+  },
+  token: String,
+});
 
 const Otp = mongoose.model("Otp", otpSchema);
 
 function validateOtp(otp) {
   const schema = Joi.object({
-    email: Joi.string().email().trim().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/),
+    email: Joi.string()
+      .email()
+      .trim()
+      .regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/),
     otp: Joi.string().required().min(4).max(6).trim(),
   });
 

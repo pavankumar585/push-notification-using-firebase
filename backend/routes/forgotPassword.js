@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const { validate } = require("../models/otp");
 const validator = require("../middleware/validator");
+const authReset = require("../middleware/authReset");
 const forgotPasswordController = require("../controllers/forgotPasswordController");
 
 router
@@ -11,11 +12,11 @@ router
 
 router
   .route("/verify")
-  .post(validator(validate), forgotPasswordController.verifyEmail);
+  .post([validator(validate)], forgotPasswordController.verifyEmail);
 
 router
   .route("/reset")
-  .post(validator(validatePassword), forgotPasswordController.resetPassword);
+  .post([validator(validatePassword), authReset], forgotPasswordController.resetPassword);
 
 function validateEmail(email) {
   const schema = Joi.object({

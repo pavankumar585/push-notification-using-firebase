@@ -32,7 +32,7 @@ async function sendVerificationEmail(req, res) {
   await newOtp.save();
 
   await sendMail(mailOptions);
-  res.json({ status: true, data: newOtp });
+  res.json({ status: true, message: "Otp sent successfully" });
 }
 
 async function verifyEmail(req, res) {
@@ -49,7 +49,7 @@ async function verifyEmail(req, res) {
   const isExpired = moment(matchedOtp.expiresIn).isBefore(moment());
   if(isExpired) {
     await Otp.deleteOne({ email });
-    return res.status(400).json({ status: false, message: "Code has expired. request for new one" });
+    return res.status(400).json({ status: false, message: "Code has expired. Request for new one" });
   }
 
   const isValidOtp = await bcrypt.compare(otp, matchedOtp.otp);
@@ -58,9 +58,9 @@ async function verifyEmail(req, res) {
   await Otp.deleteOne({ email });
   await User.updateOne({ email }, { $set: { isVerified: true } });
 
-  user.isVerified = true;
   const token = user.genAuthToken();
-
+  
+  user.isVerified = true;
   user = user.toObject();
   delete user.password;
 
