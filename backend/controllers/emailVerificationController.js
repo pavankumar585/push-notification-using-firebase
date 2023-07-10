@@ -61,8 +61,6 @@ async function verifyEmail(req, res) {
 
   const token = user.genAuthToken();
 
-  await User.updateOne({ email }, { $set: { token } });
-
   res.setHeader("Authorization", `Bearer ${token}`);
   res.json({ status: true, data: user });
 }

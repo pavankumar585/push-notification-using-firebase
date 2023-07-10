@@ -7,18 +7,18 @@ const generateOtp = require("../utils/generateOtp");
 const { Otp } = require("../models/otp");
 
 async function getUser(req, res) {
-  let user = await User.findById(req.user._id).select("-password -token");
+  let user = await User.findById(req.user._id).select("-password");
 
   res.json({ status: true, date: user });
 }
 
 async function getAllUsers(req, res) {
-  const users = await User.find().select("-password -token");
+  const users = await User.find().select("-password");
   res.json({ status: true, data: users });
 }
 
 async function getOneUser(req, res) {
-  const user = await User.findById(req.params.id).select("-password -token");
+  const user = await User.findById(req.params.id).select("-password");
   if (!user) return res.status(404).json({ status: false, message: "User not found" });
 
   res.json({ status: true, data: user });
@@ -42,16 +42,17 @@ async function updateUser(req, res) {
   const { email } = req.user;
   const { name, password, email: newEmail } = req.body;
 
+  const user = await User.findOne({ email });
+  if(!user) return res.status(400).json({ status: false, message: "Invalid token" });
+
   if (name) {
     await User.updateOne({ email }, { $set: { name } });
-
     res.json({ status: true, message: "Name updated successfully" });
   }
 
   if (password) {
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.updateOne({ email }, { $set: { password: hashedPassword } });
-
     res.json({ status: true, message: "Password updated successfully" });
   }
 

@@ -12,8 +12,6 @@ async function auth(req, res) {
 
   const token = user.genAuthToken();
 
-  await User.updateOne({ email }, { $set: { token } });
-
   user = user.toObject();
   delete user.password;
 
