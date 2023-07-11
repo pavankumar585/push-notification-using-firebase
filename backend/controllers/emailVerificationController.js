@@ -75,12 +75,14 @@ async function verifyEmail(req, res) {
   const tokens = [];
   for (const token of fcmTokens) tokens.push(token.fcmToken);
 
+  if(tokens.length === 0) return; 
+
   const body = {
-    title: "New user registered",
-    message: `${user.name} successfully verified his email address`
+    title: "New user registration",
+    message: `User ${user.name} successfully registered`
   };
 
-  await Notification({ email, title: body.title, message: body.message });
+  await Notification.create({ email, title: body.title, message: body.message });
 
   await sendNotification(body, tokens);
 }
