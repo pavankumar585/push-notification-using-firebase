@@ -67,7 +67,7 @@ async function updateUser(req, res) {
     const mailOptions = {
       from: `Yours Truly Pavan <${process.env.AUTH_EMAIL}>`,
       to: newEmail,
-      subject: "Email Change",
+      subject: "Change Email",
       html: template,
     };
 
@@ -108,8 +108,13 @@ async function changeEmail(req, res) {
 }
 
 async function deleteUser(req, res) {
-  const user = await User.findByIdAndDelete(req.params.id);
+  const user = await User.findById(req.params.id);
   if (!user) return res.status(404).json({ status: false, message: "User not found" });
+
+  const isSuperAdmin = user.roles.includes("superAdmin");
+  if(isSuperAdmin) return res.status(403).json({ status: false, message: "Access denied" });
+
+  await user.deleteOne()
 
   res.json({ status: true, message: "User deleted successfully" });
 }

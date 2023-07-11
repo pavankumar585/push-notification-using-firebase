@@ -12,7 +12,7 @@ const { validate: otpValidate } = require("../models/otp");
 
 router
   .route("/")
-  .get([admin], userController.getAllUsers)
+  .get([auth, admin], userController.getAllUsers)
   .post([validator(validate)], userController.createUser)
   .patch([validator(validateRequest), auth], userController.updateUser);
 
