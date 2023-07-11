@@ -20,9 +20,9 @@ app.get("/", (req, res) => {
   res.render("index");
 });
 
-app.use("/api/fcm-tokens", fcmTokens);
 app.use("/api/users", users);
 app.use("/api/auth", auth);
+app.use("/api/fcm-tokens", fcmTokens);
 app.use("/api/email-verification", emailVerification);
 app.use("/api/forgot-password", forgotPassword);
 app.use(error);

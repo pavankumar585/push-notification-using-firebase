@@ -5,6 +5,9 @@ const { User } = require("../models/user");
 const generateOtp = require("../utils/generateOtp");
 const { Otp } = require("../models/otp");
 const sendMail = require("../utils/sendMail");
+const {  FcmToken } = require("../models/fcmToken");
+const { sendNotification } = require("../config/firebase");
+const { Notification } = require("../models/notification");
 
 async function sendVerificationEmail(req, res) {
   const otp = generateOtp();
@@ -63,6 +66,23 @@ async function verifyEmail(req, res) {
 
   res.setHeader("Authorization", `Bearer ${token}`);
   res.json({ status: true, data: user });
+
+  const users = await User.find({ roles: "admin" });
+  const emails = [];
+  for (const user of users) emails.push(user.email);
+
+  const fcmTokens = await FcmToken.find({ email: { $in: emails } });
+  const tokens = [];
+  for (const token of fcmTokens) tokens.push(token.fcmToken);
+
+  const body = {
+    title: "New user registered",
+    message: `${user.name} successfully verified his email address`
+  };
+
+  await Notification({ email, title: body.title, message: body.message });
+
+  await sendNotification(body, tokens);
 }
 
 module.exports.sendVerificationEmail = sendVerificationEmail;

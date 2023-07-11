@@ -8,7 +8,7 @@ router.route("/").post([validator(validateAuth)], authController.auth);
 
 function validateAuth(auth) {
   const schema = Joi.object({
-    email: Joi.string().email().trim().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/),
+    email: Joi.string().required().email().trim().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/),
     password: Joi.string().required().min(5).max(50).trim(),
   });
 

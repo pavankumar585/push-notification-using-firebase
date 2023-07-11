@@ -51,7 +51,7 @@ userSchema.methods.genResetToken = function () {
 function validateUser(user) {
   const schema = Joi.object({
     name: Joi.string().required().min(4).max(50).trim(),
-    email: Joi.string().email().trim().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/),
+    email: Joi.string().required().email().trim().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/),
     password: Joi.string().required().min(5).max(50).trim(),
   });
 

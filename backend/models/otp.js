@@ -29,10 +29,7 @@ const Otp = mongoose.model("Otp", otpSchema);
 
 function validateOtp(otp) {
   const schema = Joi.object({
-    email: Joi.string()
-      .email()
-      .trim()
-      .regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/),
+    email: Joi.string().required().email().trim().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/),
     otp: Joi.string().required().min(4).max(6).trim(),
   });
 

@@ -24,7 +24,8 @@ async function sendNotification(body, tokens) {
 
   const notification = {
     title: body.title,
-    body: body.message
+    body: body.message,
+    imageUrl: body.imageUrl,
   };
 
   try {

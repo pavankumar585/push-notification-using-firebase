@@ -1,9 +1,12 @@
 const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
+  email: {
+    type: String,
     required: true,
+    minlength: 10,
+    maxlength: 50,
+    unique: true,
   },
   title: {
     type: String,
