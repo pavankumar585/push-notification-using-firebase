@@ -64,9 +64,6 @@ async function verifyEmail(req, res) {
 
   const token = user.genAuthToken();
 
-  res.setHeader("Authorization", `Bearer ${token}`);
-  res.json({ status: true, data: user });
-
   const users = await User.find({ roles: "admin" });
   const emails = [];
   for (const user of users) emails.push(user.email);
@@ -75,16 +72,19 @@ async function verifyEmail(req, res) {
   const tokens = [];
   for (const token of fcmTokens) tokens.push(token.fcmToken);
 
-  if(tokens.length === 0) return; 
-
-  const body = {
-    title: "New user registration",
-    message: `User ${user.name} successfully registered`
-  };
-
-  await Notification.create({ email, title: body.title, message: body.message });
-
-  await sendNotification(body, tokens);
+  if(tokens.length > 0) {
+    const body = {
+      title: "New user registration",
+      message: `User ${user.name} successfully registered`
+    };
+  
+    await Notification.create({ email, title: body.title, message: body.message });
+  
+    await sendNotification(body, tokens);
+  } 
+  
+  res.setHeader("Authorization", `Bearer ${token}`);
+  res.json({ status: true, data: user });
 }
 
 module.exports.sendVerificationEmail = sendVerificationEmail;
