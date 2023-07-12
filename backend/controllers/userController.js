@@ -119,6 +119,10 @@ async function deleteUser(req, res) {
   res.json({ status: true, message: "User deleted successfully" });
 }
 
+async function upgradeUserToAdmin(req, res) {}
+
+async function downgradeAdminToUser(req, res) {}
+
 module.exports.getUser = getUser;
 module.exports.getAllUsers = getAllUsers;
 module.exports.getOneUser = getOneUser;
@@ -126,3 +130,5 @@ module.exports.createUser = createUser;
 module.exports.updateUser = updateUser;
 module.exports.deleteUser = deleteUser;
 module.exports.changeEmail = changeEmail;
+module.exports.upgradeUserToAdmin = upgradeUserToAdmin;
+module.exports.downgradeAdminToUser = downgradeAdminToUser;
