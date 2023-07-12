@@ -1,11 +1,18 @@
 const { FcmToken } = require("../models/fcmToken");
 
 async function createFcmToken(req, res) {
-  const { email, fcmToken: token } = req.body;
-  
-  const fcmToken = await FcmToken.create({ email, fcmToken: token });
+  const { email } = req.user;
+  const { fcmToken } = req.body;
 
-  res.status(201).json({ status: true, data: fcmToken });
+  const recordExisted = await FcmToken.findOne({ email });
+  if(recordExisted) {
+    const token = await FcmToken.findOneAndUpdate({ email }, { $set: { fcmToken } }, { new: true });
+    return res.json({ status: true, data: token });
+  }
+  
+  const token = await FcmToken.create({ email, fcmToken });
+
+  res.status(201).json({ status: true, data: token });
 }
 
 module.exports.createFcmToken = createFcmToken;

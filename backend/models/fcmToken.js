@@ -19,7 +19,6 @@ const fcmTokenSchema = new mongoose.Schema({
 
 function validateFcmToken(fcmToken) {
   const schema = Joi.object({
-    email: Joi.string().required().email().trim().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/),
     fcmToken: Joi.string().required().min(10).max(255).trim(),
   });
 
