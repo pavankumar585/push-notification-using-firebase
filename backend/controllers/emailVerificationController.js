@@ -78,8 +78,8 @@ async function verifyEmail(req, res) {
       message: `User ${user.name} successfully registered`
     };
   
-    await Notification.create({ email, title: body.title, message: body.message });
-  
+    await Promise.all(emails.map(email => Notification.create({ email, ...body })));
+    
     await sendNotification(body, tokens);
   } 
   
