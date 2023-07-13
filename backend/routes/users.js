@@ -25,11 +25,11 @@ router
 
 router
   .route("/roles/upgrade/:id")
-  .post([auth, admin], userController.upgradeUserToAdmin);
+  .post([validateId, auth, admin], userController.upgradeUserToAdmin);
 
 router
   .route("/roles/downgrade/:id")
-  .post([auth, superAdmin], userController.downgradeAdminToUser);
+  .post([validateId, auth, superAdmin], userController.downgradeAdminToUser);
 
 router
   .route("/find/change-email")

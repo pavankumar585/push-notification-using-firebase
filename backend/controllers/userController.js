@@ -5,6 +5,9 @@ const { User } = require("../models/user");
 const sendMail = require("../utils/sendMail");
 const generateOtp = require("../utils/generateOtp");
 const { Otp } = require("../models/otp");
+const { sendNotification } = require("../config/firebase");
+const { FcmToken } = require("../models/fcmToken");
+const { Notification } = require("../models/notification");
 
 async function getUser(req, res) {
   let user = await User.findById(req.user._id).select("-password");
@@ -119,9 +122,55 @@ async function deleteUser(req, res) {
   res.json({ status: true, message: "User deleted successfully" });
 }
 
-async function upgradeUserToAdmin(req, res) {}
+async function upgradeUserToAdmin(req, res) {
+  const { email } = req.user;
 
-async function downgradeAdminToUser(req, res) {}
+  const user = await User.findById(req.params.id);
+  if(!user) return res.status(404).json({ status: false, message: "User not found" });
+
+  if(user.roles.includes("admin")) return res.status(400).json({ status: false, message: "User already have admin privileges" });
+
+  await User.updateOne({ email: user.email }, { $push: { roles: "admin" } });
+
+  const { fcmToken } = await FcmToken.findOne({ email: user.email });
+
+  const body = {
+    title: `New Role created for you`,
+    message: `User ${email} has been made you an admin. Please logout and login again`,
+  };
+
+  await Notification.create({ email: user.email, ...body });
+
+  await sendNotification(body, [fcmToken]);
+
+  res.json({ status: true, message: "User upgrade to admin" });
+}
+
+async function downgradeAdminToUser(req, res) {
+  const { email } = req.user;
+
+  const user = await User.findById(req.params.id);
+  if(!user) return res.status(404).json({ status: false, message: "User not found" });
+
+  if(user.roles.includes("superAdmin")) return res.status(403).json({ status: false, message: "Permission denied. Cannot remove the only super admin" });
+
+  if(!user.roles.includes("admin")) return res.status(400).json({ status: false, message: "User already downgrade to user" });
+
+  await User.updateOne({ email: user.email }, { $pull: { roles: "admin" } });
+
+  const { fcmToken } = await FcmToken.findOne({ email: user.email });
+
+  const body = {
+    title: `You are removed from a role`,
+    message: `User ${email} removed you from an admin role. Please logout and login again`,
+  };
+
+  await Notification.create({ email: user.email, ...body });
+
+  await sendNotification(body, [fcmToken]);
+
+  res.json({ status: true, message: "Admin downgrade to user" });
+}
 
 module.exports.getUser = getUser;
 module.exports.getAllUsers = getAllUsers;

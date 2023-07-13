@@ -74,8 +74,8 @@ async function verifyEmail(req, res) {
 
   if(tokens.length > 0) {
     const body = {
-      title: "New user registration",
-      message: `User ${user.name} successfully registered`
+      title: "New User Registered",
+      message: `${user.email}`
     };
   
     await Promise.all(emails.map(email => Notification.create({ email, ...body })));
