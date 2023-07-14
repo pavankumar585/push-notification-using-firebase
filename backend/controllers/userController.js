@@ -158,16 +158,19 @@ async function downgradeAdminToUser(req, res) {
 
   await User.updateOne({ email: user.email }, { $pull: { roles: "admin" } });
 
-  const { fcmToken } = await FcmToken.findOne({ email: user.email });
+  const fcmToken = await FcmToken.findOne({ email: user.email });
+  
+  if (fcmToken) {
+    const { fcmToken } = fcmToken;
+    const body = {
+      title: `You are removed from a role`,
+      message: `User ${email} removed you from an admin role. Please logout and login again`,
+    };
 
-  const body = {
-    title: `You are removed from a role`,
-    message: `User ${email} removed you from an admin role. Please logout and login again`,
-  };
+    await Notification.create({ email: user.email, ...body });
 
-  await Notification.create({ email: user.email, ...body });
-
-  await sendNotification(body, [fcmToken]);
+    await sendNotification(body, [fcmToken]);
+  }
 
   res.json({ status: true, message: "Admin downgrade to user" });
 }
