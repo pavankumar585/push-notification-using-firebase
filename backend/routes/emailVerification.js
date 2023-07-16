@@ -1,9 +1,9 @@
 const Joi = require("joi");
 const express = require("express");
 const router = express.Router();
-const emailVerificationController = require("../controllers/emailVerificationController");
 const { validate } = require("../models/otp");
 const validator = require("../middleware/validator");
+const emailVerificationController = require("../controllers/emailVerificationController");
 
 router
   .route("/")

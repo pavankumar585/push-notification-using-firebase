@@ -13,6 +13,9 @@ async function authReset(req, res, next) {
 
     next();
   } catch (error) {
+    if (error instanceof jwt.TokenExpiredError)
+      return res.status(400).json({ status: false, expired: true, message: "Token has expired" });
+
     res.status(400).json({ status: false, message: "Invalid token" });
   }
 }

@@ -39,13 +39,13 @@ userSchema.methods.genAuthToken = function () {
   const privateKey = process.env.JWT_PRIVATE_KEY;
   const { _id, email, roles } = this;
 
-  return jwt.sign({ _id, email, roles }, privateKey, { expiresIn: "5d" });
+  return jwt.sign({ _id, email, roles }, privateKey, { expiresIn: "15d" });
 };
 
 userSchema.methods.genResetToken = function () {
   const privateKey = process.env.JWT_PRIVATE_KEY2;
 
-  return jwt.sign({ email: this.email }, privateKey, { expiresIn: "1d" });
+  return jwt.sign({ email: this.email }, privateKey, { expiresIn: "1h" });
 };
 
 function validateUser(user) {

@@ -65,12 +65,12 @@ async function verifyEmail(req, res) {
   const token = user.genAuthToken();
 
   const users = await User.find({ roles: "admin" });
-  const emails = [];
-  for (const user of users) emails.push(user.email);
+
+  const emails = users.map((user) => user.email);
 
   const fcmTokens = await FcmToken.find({ email: { $in: emails } });
-  const tokens = [];
-  for (const token of fcmTokens) tokens.push(token.fcmToken);
+  
+  const tokens = fcmTokens.map((token) => token.fcmToken);
 
   if(tokens.length > 0) {
     const body = {

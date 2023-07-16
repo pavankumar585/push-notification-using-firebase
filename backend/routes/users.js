@@ -4,11 +4,11 @@ const router = express.Router();
 const validator = require("../middleware/validator");
 const validateId = require("../middleware/validateId");
 const { validate } = require("../models/user");
-const userController = require("../controllers/userController");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 const superAdmin = require("../middleware/superAdmin");
 const { validate: otpValidate } = require("../models/otp");
+const userController = require("../controllers/userController");
 
 router.route("/find/me").get([auth], userController.getUser);
 

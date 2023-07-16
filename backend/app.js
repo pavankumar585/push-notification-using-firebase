@@ -10,6 +10,7 @@ const auth = require("./routes/auth");
 const emailVerification = require("./routes/emailVerification");
 const forgotPassword = require("./routes/forgotPassword");
 const notifications = require("./routes/notifications");
+const announcements = require("./routes/announcements");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,6 +26,7 @@ app.use("/api/fcm-tokens", fcmTokens);
 app.use("/api/email-verification", emailVerification);
 app.use("/api/forgot-password", forgotPassword);
 app.use("/api/notifications", notifications);
+app.use("/api/announcements", announcements);
 app.use(error);
 
 const port = process.env.PORT || 9000;
