@@ -5,9 +5,11 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 
 function App() {
+  const loggedIn = false;
+
   return (
     <>
-      <CustomNavbar />
+      {loggedIn && <CustomNavbar />}
       <Container>
         <Routes>
           <Route index element={<Navigate to="/register" />} />
