@@ -23,10 +23,11 @@ function Login() {
   return (
     <Form
       onSubmit={handleSubmit(onSubmit)}
-      className="d-flex flex-column justify-content-center vh-100 w-50 mx-auto"
+      style={{ maxWidth: "700px" }}
+      className="d-flex flex-column justify-content-center vh-100 mx-auto"
     >
       <h1 className="text-center mb-4">Login to your account</h1>
-      <div className="shadow p-4 rounded">
+      <div className="shadow p-4 rounded" style={{ background: "#FFFFFF" }}>
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Email address</Form.Label>
           <Form.Control
@@ -54,11 +55,11 @@ function Login() {
             </Alert>
           )}
         </Form.Group>
-        <Button variant="primary" type="submit" size="sm" className="w-25">
-          Login
+        <Button variant="primary" type="submit" size="sm">
+          Sign in
         </Button>
         <p className="mt-2">
-          Don't have an account? <Link to="/register">Create account</Link>
+          Don't have an account? <Link to="/register">Sign up</Link>
         </p>
       </div>
     </Form>

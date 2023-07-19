@@ -24,10 +24,11 @@ function Register() {
   return (
     <Form
       onSubmit={handleSubmit(onSubmit)}
-      className="d-flex flex-column justify-content-center vh-100 w-50 mx-auto"
+      style={{ maxWidth: "700px" }}
+      className="d-flex flex-column justify-content-center vh-100 mx-auto"
     >
       <h1 className="text-center mb-4">Create your account</h1>
-      <div className="shadow p-4 rounded">
+      <div className="shadow p-4 rounded" style={{ background: "#FFFFFF" }}>
         <Form.Group className="mb-3" controlId="formBasicName">
           <Form.Label>Name</Form.Label>
           <Form.Control
@@ -71,11 +72,11 @@ function Register() {
             </Alert>
           )}
         </Form.Group>
-        <Button variant="primary" type="submit" size="sm" className="w-25">
-          Create account
+        <Button variant="primary" type="submit" size="sm">
+          Sign up
         </Button>
         <p className="mt-2">
-          Alreay have an account? <Link to="/login">Login</Link>
+          Alreay have an account? <Link to="/login">Sign in</Link>
         </p>
       </div>
     </Form>
