@@ -1,6 +1,7 @@
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
+import Badge from "react-bootstrap/Badge";
 import { Link } from "react-router-dom";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { TfiAnnouncement } from "react-icons/tfi";
@@ -25,11 +26,22 @@ function CustomNavbar() {
             navbarScroll
           ></Nav>
           <Nav className="ms-auto">
-            <Nav.Link as={Link} to="/notification">
-              <IoMdNotificationsOutline size="1.5em" />
+            <Nav.Link
+              as={Link}
+              to="/announcement"
+              className="position-relative"
+            >
+              <IoMdNotificationsOutline size="1.8em" />
+              <Badge
+                bg="danger"
+                pill
+                className="position-absolute top-25 start-25 translate-middle"
+              >
+                5
+              </Badge>
             </Nav.Link>
-            <Nav.Link as={Link} to="/announcement">
-              <TfiAnnouncement size="1.5em" />
+            <Nav.Link as={Link} to="/notification">
+              <TfiAnnouncement size="1.8em" />
             </Nav.Link>
             <Nav.Link as={Link} to="profile">
               My Profile
