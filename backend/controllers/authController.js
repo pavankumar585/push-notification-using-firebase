@@ -10,6 +10,8 @@ async function auth(req, res) {
   const isValid = await bcrypt.compare(password, user.password);
   if (!isValid) return res.status(400).json({ status: false, message: "Invalid email or password" });
 
+  if (!user.isVerified) return res.status(400).send("Email hasn't been verified yet. Check your inbox.");
+
   const token = user.genAuthToken();
 
   user = user.toObject();
