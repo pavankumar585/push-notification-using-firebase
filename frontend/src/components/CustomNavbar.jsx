@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Container from "react-bootstrap/Container";
+import Spinner from "react-bootstrap/Spinner";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Badge from "react-bootstrap/Badge";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { TfiAnnouncement } from "react-icons/tfi";
+import { CgProfile } from "react-icons/cg";
+import { IoIosLogOut } from "react-icons/io";
 
 function CustomNavbar() {
   const [innerWidth, setInnerWidth] = useState(window.innerWidth);
@@ -52,23 +55,39 @@ function CustomNavbar() {
               to="/notification"
               className="position-relative"
             >
-              <IoMdNotificationsOutline size="1.8em" />
+              <IoMdNotificationsOutline size="1.7em" />
               <Badge
-                bg="danger"
                 pill
+                style={{ paddingInline: "5px", paddingBlock: "2px", marginLeft: "-5px" }}
+                bg="warning"
                 className="position-absolute top-25 start-25 translate-middle"
               >
                 5
               </Badge>
+              {mobile && <span className="ps-3">Notification</span>}
             </Nav.Link>
-            <Nav.Link as={Link} to="/announcement">
-              {mobile ? "Announcement" : <TfiAnnouncement size="1.8em" />}
+            <Nav.Link
+              as={Link}
+              to="/announcement"
+              className="position-relative"
+            >
+              <TfiAnnouncement size="1.6em" />
+              <Spinner
+                animation="grow"
+                variant="info"
+                size="sm"
+                className="position-absolute top-0 start-25"
+                style={{ marginLeft: "-8px", padding: "7px"}}
+              />
+              {mobile && <span className="ps-3">Announcement</span>}
             </Nav.Link>
             <Nav.Link as={Link} to="profile">
-              My Profile
+              {mobile && <CgProfile size="1.6em" />}
+              <span className="ps-3">My Profile</span>
             </Nav.Link>
             <Nav.Link as={Link} to="logout">
-              Logout
+              {mobile && <IoIosLogOut size="1.6em" />}
+              <span className="ps-3">Logout</span>
             </Nav.Link>
           </Nav>
         </Navbar.Collapse>
