@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Users from './pages/Users';
 import Profile from './pages/Profile';
 import Logout from './pages/Logout';
+import OtpForm from './pages/OtpForm';
 import "./App.css"
 
 function App() {
@@ -21,9 +22,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Users />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/notification" element={<Notification />} />
           <Route path="/announcement" element={<Announcement />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/otp-form" element={<OtpForm />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="*" element={<PageNotfound />} />

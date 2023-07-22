@@ -58,11 +58,10 @@ function CustomNavbar() {
               <IoMdNotificationsOutline size="1.7em" />
               <Badge
                 pill
-                style={{ paddingInline: "5px", paddingBlock: "2px", marginLeft: "-5px" }}
                 bg="warning"
                 className="position-absolute top-25 start-25 translate-middle"
               >
-                5
+                12
               </Badge>
               {mobile && <span className="ps-3">Notification</span>}
             </Nav.Link>
@@ -77,7 +76,7 @@ function CustomNavbar() {
                 variant="info"
                 size="sm"
                 className="position-absolute top-0 start-25"
-                style={{ marginLeft: "-8px", padding: "7px"}}
+                style={{ marginLeft: "-10px" }}
               />
               {mobile && <span className="ps-3">Announcement</span>}
             </Nav.Link>
