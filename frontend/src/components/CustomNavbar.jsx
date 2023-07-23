@@ -59,9 +59,10 @@ function CustomNavbar() {
               <Badge
                 pill
                 bg="warning"
+                style={{ marginTop: "5px", marginLeft: "-5px" }}
                 className="position-absolute top-25 start-25 translate-middle"
               >
-                12
+                3
               </Badge>
               {mobile && <span className="ps-3">Notification</span>}
             </Nav.Link>
@@ -76,7 +77,11 @@ function CustomNavbar() {
                 variant="info"
                 size="sm"
                 className="position-absolute top-0 start-25"
-                style={{ marginLeft: "-10px" }}
+                style={{
+                  padding: "11px",
+                  marginLeft: "-12px",
+                  marginTop: "2px",
+                }}
               />
               {mobile && <span className="ps-3">Announcement</span>}
             </Nav.Link>
