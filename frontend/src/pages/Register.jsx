@@ -4,7 +4,11 @@ import Alert from "react-bootstrap/Alert";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signUp, sendVerificationEmail } from "../services/userService";
+import { useNavigate } from "react-router-dom";
 import * as z from "zod";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
 const schema = z.object({
   name: z.string().trim().min(4).max(50),
@@ -13,12 +17,27 @@ const schema = z.object({
 });
 
 function Register() {
-  const { register, handleSubmit, formState: { errors }, reset  } = useForm({ resolver: zodResolver(schema) });
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const { register, handleSubmit, formState, setError } = useForm({
+    resolver: zodResolver(schema),
+  });
+  const { errors } = formState;
 
-  const onSubmit = (data) => {
-    console.log("data", data);
+  const onSubmit = async (data) => {
+    try {
+      setLoading(true);
+      const { data: userData } = await signUp(data);
+      const { data: verifyData } = await sendVerificationEmail(userData.user.email);
 
-    reset();
+      if(verifyData.status) navigate("/validate-otp", { state: userData });
+      toast.success(verifyData.message);
+    } catch (error) {
+      if (error.response && error.response.status === 400)
+        setError("name", { type: "custom", message: error.response.data.message, });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -72,11 +91,11 @@ function Register() {
             </Alert>
           )}
         </Form.Group>
-        <Button variant="primary" type="submit" size="sm">
+        <Button variant="primary" type="submit" size="sm" disabled={loading}>
           Sign up
         </Button>
         <p className="mt-2">
-          Alreay have an account? <Link to="/login">Sign in</Link>
+          Alreay have an account? <Link to="/login" className={loading ? "disable" : ""}>Sign in</Link>
         </p>
       </div>
     </Form>

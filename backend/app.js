@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 require("dotenv").config();
 require("./config/db")();
 require("express-async-errors");
@@ -12,6 +13,7 @@ const forgotPassword = require("./routes/forgotPassword");
 const notifications = require("./routes/notifications");
 const announcements = require("./routes/announcements");
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "pug");

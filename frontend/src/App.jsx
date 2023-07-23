@@ -9,15 +9,19 @@ import Login from "./pages/Login";
 import Users from './pages/Users';
 import Profile from './pages/Profile';
 import Logout from './pages/Logout';
-import OtpForm from './components/OtpForm';
+import VerifyEmailForm from './pages/VerifyEmailForm';
+import { ToastContainer } from "react-toastify"
 import "./App.css"
 
 function App() {
   const loggedIn = true;
 
+  // console.log("vapidkey", import.meta.env.VITE_FIRE_BASE_VAPID_KEY);
+
   return (
     <>
       {loggedIn && <CustomNavbar />}
+      <ToastContainer />
       <Container>
         <Routes>
           <Route path="/" element={<Users />} />
@@ -25,7 +29,7 @@ function App() {
           <Route path="/notification" element={<Notification />} />
           <Route path="/announcement" element={<Announcement />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/validate-otp" element={<OtpForm />} />
+          <Route path="/validate-email" element={<VerifyEmailForm />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="*" element={<PageNotfound />} />

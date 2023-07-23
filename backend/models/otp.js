@@ -19,7 +19,7 @@ const otpSchema = new mongoose.Schema({
   expiresIn: {
     type: Date,
     default: function () {
-      return moment().add(1, "minute");
+      return moment().add(30, "seconds");
     },
   },
   token: String,

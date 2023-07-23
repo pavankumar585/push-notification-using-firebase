@@ -12,3 +12,7 @@ body {
 .clickable {
   cursor: pointer;
 }
+
+.disable {
+  pointer-events: none;
+}
