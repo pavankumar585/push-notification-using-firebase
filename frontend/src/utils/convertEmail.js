@@ -1,4 +1,6 @@
 export function convertEmail(email) {
+  if(!email) return;
+  
   const atIndex = email.indexOf("@");
   const username = email.substring(0, atIndex);
 

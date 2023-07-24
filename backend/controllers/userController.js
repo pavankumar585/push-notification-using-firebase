@@ -12,7 +12,7 @@ const { Notification } = require("../models/notification");
 async function getUser(req, res) {
   let user = await User.findById(req.user._id).select("-password");
 
-  res.json({ status: true, date: user });
+  res.json({ status: true, data: user });
 }
 
 async function getAllUsers(req, res) {
@@ -38,7 +38,7 @@ async function createUser(req, res) {
   user = user.toObject();
   delete user.password;
 
-  res.status(201).json({ status: true, user });
+  res.status(201).json({ status: true, data: user });
 }
 
 async function updateUser(req, res) {

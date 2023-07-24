@@ -3,21 +3,51 @@ import OtpInput from "react-otp-input";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { convertEmail } from "../utils/convertEmail";
-import { useLocation } from "react-router-dom";
-import { verifyEmail } from "../services/userService";
+import { sendVerificationEmail, verifyEmail } from "../services/userService";
 import { toast } from "react-toastify";
 import { formatCountdown } from "../utils/formatCountdown";
+import { getUser } from "../services/userService";
 
 function OtpForm() {
   const [otp, setOtp] = useState("");
-  const { state } = useLocation();
   const [loading, setLoading] = useState(false);
-  const [countdown, setCountdown] = useState(30);
+  const [countdown, setCountdown] = useState(29);
+  const [user, setUser] = useState(null);
+  const [timerReset, setTimerReset] = useState(false);
+  const [isSent, setIsSent] = useState(false);
+
+  useEffect(() => {
+    if(getUser()) {
+      const { data } = getUser();
+      setUser(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    const sendMail = async () => {
+      try {
+        setTimerReset(true);
+        setIsSent(true);
+        const { data } = await sendVerificationEmail({ email: user.email });
+        toast.success(data.message);
+      } catch (error) {
+        if (error.response && error.response.status === 400)
+          toast.error(error.response.data.message);
+      } finally {
+        setIsSent(false);
+      }
+    };
+
+    sendMail()
+  }, [user])
 
   useEffect(() => {
     let timer;
-    if(loading) setCountdown(30);
-    if (countdown > 0) {
+
+    if (timerReset) setCountdown(29);
+    setTimerReset(false);
+
+    if (countdown > -1 && !isSent) {
       timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
       }, 1000);
@@ -26,18 +56,21 @@ function OtpForm() {
     return () => {
       clearInterval(timer);
     };
-  }, [countdown, loading]);
+  }, [countdown, timerReset, isSent]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (otp.length < 4) return toast.error("Please enter otp");
+
+    if (otp.length === 0) return toast.error("Please enter OTP");
+
+    if (otp.length > 0 && otp.length < 4) return toast.error("OTP incomplete");
 
     try {
       setLoading(true);
-      const { data } = await verifyEmail({ email: state?.user?.email, otp });
+      const { data } = await verifyEmail({ email: user.email, otp });
+      console.log("data", data);
       toast.success(data.message);
     } catch (error) {
-      console.log(error);
       if (error.response && error.response.status === 400)
         toast.error(error.response.data.message);
       if (error.response && error.response.status === 404)
@@ -47,16 +80,17 @@ function OtpForm() {
     }
   };
 
-  const resendEmail = async (e) => {
+  const resendEmail = async () => {
     try {
-      setLoading(true);
-      const { data } = await verifyEmail({ email: state?.user?.email, otp });
+      setTimerReset(true);
+      setIsSent(true);
+      const { data } = await sendVerificationEmail({ email: user.email });
       toast.success(data.message);
     } catch (error) {
       if (error.response && error.response.status === 400)
         toast.error(error.response.data.message);
     } finally {
-      setLoading(false);
+      setIsSent(false);
     }
   };
 
@@ -70,7 +104,7 @@ function OtpForm() {
           Please enter the one time password to verify your account
         </h3>
         <p className="text-center">
-          {state && `A code has been sent to ${convertEmail(state.user.email)}`}
+          {`A code has been sent to ${convertEmail(user?.email)}`}
         </p>
         <div className="d-flex justify-content-center">
           <OtpInput
@@ -88,27 +122,27 @@ function OtpForm() {
           />
         </div>
         <div className="text-center my-3">
-          <Button type="submit" variant="danger" disabled={loading}>
+          <Button type="submit" variant="danger" disabled={isSent || loading}>
             Validate
           </Button>
         </div>
-        <h6 className="text-center my-3">
-          OTP Will Expires In:{" "}
-          <span className="text-danger">{formatCountdown(countdown)} (S)</span>
-        </h6>
-        <p className="text-center">
-          Didn't get the code{" "}
-          <span
-            onClick={resendEmail}
-            className={
-              loading
-                ? "text-danger ps-2 disable"
-                : "text-danger ps-2 clickable"
-            }
-          >
-            Resend OTP
-          </span>
-        </p>
+        {!isSent && countdown > -1 && (
+          <h6 className="text-center my-3">
+            Resend OTP in{" "}
+            <span className="text-danger">
+              {"00 : " + formatCountdown(countdown)} sec
+            </span>
+          </h6>
+        )}
+        {isSent ? (
+          <p className="text-center">Sending...</p>
+        ) : (
+          countdown < 0 && (
+            <p className="text-center clickable" onClick={resendEmail}>
+              Resend OTP
+            </p>
+          )
+        )}
       </Form>
     </div>
   );

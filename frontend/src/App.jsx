@@ -14,7 +14,7 @@ import { ToastContainer } from "react-toastify"
 import "./App.css"
 
 function App() {
-  const loggedIn = true;
+  const loggedIn = false;
 
   // console.log("vapidkey", import.meta.env.VITE_FIRE_BASE_VAPID_KEY);
 

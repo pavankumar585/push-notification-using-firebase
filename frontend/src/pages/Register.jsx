@@ -4,11 +4,11 @@ import Alert from "react-bootstrap/Alert";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signUp, sendVerificationEmail } from "../services/userService";
 import { useNavigate } from "react-router-dom";
 import * as z from "zod";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { signUp, sendVerificationEmail, getUser } from "../services/userService";
 
 const schema = z.object({
   name: z.string().trim().min(4).max(50),
@@ -18,20 +18,32 @@ const schema = z.object({
 
 function Register() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, formState, setError } = useForm({
-    resolver: zodResolver(schema),
-  });
+  const { register, handleSubmit, formState, setError, reset } = useForm({ resolver: zodResolver(schema), });
   const { errors } = formState;
+
+  useEffect(() => {
+    if(getUser()) {
+      const { data } = getUser();
+      setUser(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    if(user && !user?.isVerified) navigate("/validate-email")
+  }, [user]);
 
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-      const { data: userData } = await signUp(data);
-      const { data: verifyData } = await sendVerificationEmail(userData.user.email);
+      await signUp(data);
+      const { data: user } = getUser();
+      const { data: verifyData } = await sendVerificationEmail({ email: user.email });
 
-      if(verifyData.status) navigate("/validate-otp", { state: userData });
+      if(verifyData.status) navigate("/validate-email", { state: user });
       toast.success(verifyData.message);
+      reset()
     } catch (error) {
       if (error.response && error.response.status === 400)
         setError("name", { type: "custom", message: error.response.data.message, });
