@@ -3,49 +3,38 @@ import OtpInput from "react-otp-input";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { convertEmail } from "../utils/convertEmail";
-import { sendVerificationEmail, verifyEmail } from "../services/userService";
+import userService from "../services/userService";
 import { toast } from "react-toastify";
 import { formatCountdown } from "../utils/formatCountdown";
-import { getUser } from "../services/userService";
+import { useLocation } from "react-router-dom";
 
 function OtpForm() {
+  const { state } = useLocation();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(29);
-  const [user, setUser] = useState(null);
   const [timerReset, setTimerReset] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [user, setUser] = useState(null);
+  const [otpRequested, setOtpRequested] = useState(state);
+  console.log("state", state);
 
   useEffect(() => {
-    if(getUser()) {
-      const { data } = getUser();
+    const user = userService.getUser();
+
+    if (user) {
+      const { data } = user;
       setUser(data);
     }
   }, []);
-
-  useEffect(() => {
-    const sendMail = async () => {
-      try {
-        setTimerReset(true);
-        setIsSent(true);
-        const { data } = await sendVerificationEmail({ email: user.email });
-        toast.success(data.message);
-      } catch (error) {
-        if (error.response && error.response.status === 400)
-          toast.error(error.response.data.message);
-      } finally {
-        setIsSent(false);
-      }
-    };
-
-    sendMail()
-  }, [user])
 
   useEffect(() => {
     let timer;
 
     if (timerReset) setCountdown(29);
     setTimerReset(false);
+
+    if (countdown === -1) setOtpRequested(false);
 
     if (countdown > -1 && !isSent) {
       timer = setInterval(() => {
@@ -67,8 +56,10 @@ function OtpForm() {
 
     try {
       setLoading(true);
-      const { data } = await verifyEmail({ email: user.email, otp });
-      console.log("data", data);
+      const { data } = await userService.verifyEmail({
+        email: user.email,
+        otp,
+      });
       toast.success(data.message);
     } catch (error) {
       if (error.response && error.response.status === 400)
@@ -84,7 +75,10 @@ function OtpForm() {
     try {
       setTimerReset(true);
       setIsSent(true);
-      const { data } = await sendVerificationEmail({ email: user.email });
+      const { data } = await userService.sendVerificationEmail({
+        email: user.email,
+      });
+      setOtpRequested(true);
       toast.success(data.message);
     } catch (error) {
       if (error.response && error.response.status === 400)
@@ -104,7 +98,8 @@ function OtpForm() {
           Please enter the one time password to verify your account
         </h3>
         <p className="text-center">
-          {`A code has been sent to ${convertEmail(user?.email)}`}
+          {otpRequested &&
+            `A code has been sent to ${convertEmail(user?.email)}`}
         </p>
         <div className="d-flex justify-content-center">
           <OtpInput
@@ -126,7 +121,7 @@ function OtpForm() {
             Validate
           </Button>
         </div>
-        {!isSent && countdown > -1 && (
+        {!isSent && countdown > -1 && otpRequested && (
           <h6 className="text-center my-3">
             Resend OTP in{" "}
             <span className="text-danger">
@@ -137,7 +132,7 @@ function OtpForm() {
         {isSent ? (
           <p className="text-center">Sending...</p>
         ) : (
-          countdown < 0 && (
+          (countdown < 0 || !otpRequested) && (
             <p className="text-center clickable" onClick={resendEmail}>
               Resend OTP
             </p>

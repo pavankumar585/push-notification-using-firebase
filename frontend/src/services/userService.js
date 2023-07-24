@@ -1,23 +1,33 @@
 import http from "./httpService";
 
-export async function signUp(user) {
+async function signUp(user) {
   const { data } = await http.post("/users", user);
 
   localStorage.setItem("user", JSON.stringify(data));
 }
 
-export function sendVerificationEmail(email) {
+function sendVerificationEmail(email) {
   return http.post("/email-verification", email);
 }
 
-export function verifyEmail({ email, otp }) {
+function verifyEmail({ email, otp }) {
   return http.post("/email-verification/verify", { email, otp });
 }
 
-export function getUser() {
+function getUser() {
   return JSON.parse(localStorage.getItem("user"));
 }
 
-export function setUser(user) {
+function setUser(user) {
   localStorage.setItem("user", JSON.stringify(user));
 }
+
+const userService = {
+  signUp,
+  getUser,
+  setUser,
+  verifyEmail,
+  sendVerificationEmail,
+};
+
+export default userService;

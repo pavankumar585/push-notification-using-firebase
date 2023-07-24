@@ -2,13 +2,13 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
 import { Link } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import * as z from "zod";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import { signUp, sendVerificationEmail, getUser } from "../services/userService";
+import userService from "../services/userService";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const schema = z.object({
   name: z.string().trim().min(4).max(50),
@@ -24,24 +24,27 @@ function Register() {
   const { errors } = formState;
 
   useEffect(() => {
-    if(getUser()) {
-      const { data } = getUser();
+    const user = userService.getUser();
+
+    if(user) {
+      const { data } = user;
       setUser(data);
     }
   }, []);
 
   useEffect(() => {
-    if(user && !user?.isVerified) navigate("/validate-email")
+    if(user && !user?.isVerified) navigate("/validate-email");
   }, [user]);
 
   const onSubmit = async (data) => {
     try {
       setLoading(true);
-      await signUp(data);
-      const { data: user } = getUser();
-      const { data: verifyData } = await sendVerificationEmail({ email: user.email });
+      await userService.signUp(data);
+      const { data: user } = userService.getUser();
+      const { data: verifyData } = await userService.sendVerificationEmail({ email: user.email });
 
-      if(verifyData.status) navigate("/validate-email", { state: user });
+      if(verifyData.status) navigate("/validate-email");
+      // we need to use local storage
       toast.success(verifyData.message);
       reset()
     } catch (error) {
