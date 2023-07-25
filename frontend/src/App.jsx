@@ -9,7 +9,6 @@ import Login from "./pages/Login";
 import Users from './pages/Users';
 import Profile from './pages/Profile';
 import Logout from './pages/Logout';
-import VerifyEmailForm from './pages/VerifyEmailForm';
 import { ToastContainer } from "react-toastify"
 import "./App.css"
 
@@ -29,7 +28,6 @@ function App() {
           <Route path="/notification" element={<Notification />} />
           <Route path="/announcement" element={<Announcement />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/validate-email" element={<VerifyEmailForm />} />
           <Route path="/login" element={<Login />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="*" element={<PageNotfound />} />

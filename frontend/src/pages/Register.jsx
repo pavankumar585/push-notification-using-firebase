@@ -1,14 +1,18 @@
+import { useEffect, useState } from "react";
+import OtpInput from "react-otp-input";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Alert from "react-bootstrap/Alert";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { useEffect, useState } from "react";
 import userService from "../services/userService";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useNavigate, Navigate } from "react-router-dom";
+import { convertEmail } from "../utils/convertEmail";
+import { formatCountdown } from "../utils/formatCountdown";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import moment from "moment";
 
 const schema = z.object({
   name: z.string().trim().min(4).max(50),
@@ -18,35 +22,36 @@ const schema = z.object({
 
 function Register() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [otp, setOtp] = useState("");
+  const [sending, setSending] = useState(false);
+  const [countdown, setCountdown] = useState(29);
+  const [otpExpired, setOtpExpired] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const { register, handleSubmit, formState, setError, reset } = useForm({ resolver: zodResolver(schema), });
   const { errors } = formState;
 
   useEffect(() => {
     const user = userService.getUser();
-
-    if(user) {
-      const { data } = user;
-      setUser(data);
-    }
+    if (user) setCurrentUser(user.data);
+    setOtpSent(false);
   }, []);
 
-  useEffect(() => {
-    if(user && !user?.isVerified) navigate("/validate-email");
-  }, [user]);
-
+  useEffect(() => {}, []);
+  
   const onSubmit = async (data) => {
     try {
       setLoading(true);
       await userService.signUp(data);
-      const { data: user } = userService.getUser();
-      const { data: verifyData } = await userService.sendVerificationEmail({ email: user.email });
+      const user = userService.getUser();
+      setCurrentUser(user.data);
 
-      if(verifyData.status) navigate("/validate-email");
-      // we need to use local storage
-      toast.success(verifyData.message);
-      reset()
+      const { data: response } = await userService.sendVerificationEmail({ email: user.data.email });
+      toast.success(response.message);
+      setOtpExpired(false);
+      setOtpSent(true);
+      reset();
     } catch (error) {
       if (error.response && error.response.status === 400)
         setError("name", { type: "custom", message: error.response.data.message, });
@@ -55,7 +60,97 @@ function Register() {
     }
   };
 
-  return (
+  const validateEmail = async () => {
+    if (otp.length === 0) return toast.error("Please enter OTP");
+    if (otp.length > 0 && otp.length < 4) return toast.error("OTP incomplete");
+
+    try {
+      setLoading(true);
+      const { data } = await userService.verifyEmail({ email: currentUser.email, otp, });
+      userService.setUser(data);
+      toast.success("Login successful!");
+      navigate("/")
+    } catch (error) {
+      if (error.response && error.response.status === 400)
+        toast.error(error.response.data.message);
+      if (error.response && error.response.status === 404)
+        toast.error(error.response.data.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendEmail = async () => {
+    try {
+      setSending(true);
+      const { data } = await userService.sendVerificationEmail({ email: currentUser.email, });
+      toast.success(data.message);
+      setOtpExpired(false);
+      setOtpSent(true)
+    } catch (error) {
+      if (error.response && error.response.status === 400)
+        toast.error(error.response.data.message);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if(currentUser?.isVerified) return <Navigate to="/" />
+
+  return currentUser && !loading ? (
+    <div
+      style={{ maxWidth: "700px" }}
+      className="d-flex align-items-center vh-100 mx-auto"
+    >
+      <div className="shadow p-4 rounded">
+        <h3 className="text-danger text-center">
+          Please enter the one time password to verify your account
+        </h3>
+        <p className="text-center">
+          {(!otpExpired && otpSent) && `A code has been sent to ${convertEmail(currentUser?.email)}`}
+        </p>
+        <div className="d-flex justify-content-center">
+          <OtpInput
+            value={otp}
+            onChange={setOtp}
+            numInputs={4}
+            renderSeparator={<span className="p-2" />}
+            renderInput={(props) => (
+              <Form.Control
+                type="text"
+                {...props}
+                style={{ width: "40px", textAlign: "center" }}
+              />
+            )}
+          />
+        </div>
+        <div className="text-center my-3">
+          <Button onClick={validateEmail} variant="danger" disabled={sending}>
+            Validate
+          </Button>
+        </div>
+        {(!otpExpired && otpSent) && (
+          <h6 className="text-center my-3">
+            Resend OTP in{" "}
+            <span className="text-danger">
+              {"00 : " + formatCountdown(countdown)} sec
+            </span>
+          </h6>
+        )}
+        {sending ? (
+          <p className="text-center">Sending...</p>
+        ) : (
+          (!otpSent || otpExpired) && (
+            <div className="text-center">
+              <span className="clickable" onClick={resendEmail}>
+                Resend OTP
+              </span>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  ) : (
     <Form
       onSubmit={handleSubmit(onSubmit)}
       style={{ maxWidth: "700px" }}
@@ -110,7 +205,10 @@ function Register() {
           Sign up
         </Button>
         <p className="mt-2">
-          Alreay have an account? <Link to="/login" className={loading ? "disable" : ""}>Sign in</Link>
+          Alreay have an account?{" "}
+          <Link to="/login" className={loading ? "disable" : ""}>
+            Sign in
+          </Link>
         </p>
       </div>
     </Form>
