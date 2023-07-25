@@ -16,30 +16,53 @@ import moment from "moment";
 
 const schema = z.object({
   name: z.string().trim().min(4).max(50),
-  email: z.string().nonempty().email().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/, { message: "invalid email" }),
+  email: z
+    .string()
+    .nonempty()
+    .email()
+    .regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/, { message: "invalid email" }),
   password: z.string().trim().min(5).max(50),
 });
 
 function Register() {
+  const count = JSON.parse(localStorage.getItem("count"));
   const navigate = useNavigate();
   const [otp, setOtp] = useState("");
   const [sending, setSending] = useState(false);
-  const [countdown, setCountdown] = useState(29);
+  const [countdown, setCountdown] = useState(count);
   const [otpExpired, setOtpExpired] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [validate, setValidate] = useState(false);
   const { register, handleSubmit, formState, setError, reset } = useForm({ resolver: zodResolver(schema), });
   const { errors } = formState;
 
   useEffect(() => {
     const user = userService.getUser();
     if (user) setCurrentUser(user.data);
-    setOtpSent(false);
+
+    if (count < 0) setOtpExpired(true);
   }, []);
 
-  useEffect(() => {}, []);
-  
+  useEffect(() => {
+    let timer;
+
+    if (count === 0) {
+      setOtpExpired(true);
+      setOtp("");
+    }
+
+    timer = setInterval(() => {
+      if (countdown > -1) setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    localStorage.setItem("count", countdown);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [countdown, otpExpired]);
+
   const onSubmit = async (data) => {
     try {
       setLoading(true);
@@ -47,10 +70,10 @@ function Register() {
       const user = userService.getUser();
       setCurrentUser(user.data);
 
-      const { data: response } = await userService.sendVerificationEmail({ email: user.data.email });
+      const { data: response } = await userService.sendVerificationEmail({ email: user.data.email,});
       toast.success(response.message);
       setOtpExpired(false);
-      setOtpSent(true);
+      setCountdown(29);
       reset();
     } catch (error) {
       if (error.response && error.response.status === 400)
@@ -65,18 +88,18 @@ function Register() {
     if (otp.length > 0 && otp.length < 4) return toast.error("OTP incomplete");
 
     try {
-      setLoading(true);
+      setValidate(true);
       const { data } = await userService.verifyEmail({ email: currentUser.email, otp, });
       userService.setUser(data);
       toast.success("Login successful!");
-      navigate("/")
+      navigate("/");
     } catch (error) {
       if (error.response && error.response.status === 400)
         toast.error(error.response.data.message);
       if (error.response && error.response.status === 404)
         toast.error(error.response.data.message);
     } finally {
-      setLoading(false);
+      setValidate(false);
     }
   };
 
@@ -86,7 +109,7 @@ function Register() {
       const { data } = await userService.sendVerificationEmail({ email: currentUser.email, });
       toast.success(data.message);
       setOtpExpired(false);
-      setOtpSent(true)
+      setCountdown(29);
     } catch (error) {
       if (error.response && error.response.status === 400)
         toast.error(error.response.data.message);
@@ -95,7 +118,7 @@ function Register() {
     }
   };
 
-  if(currentUser?.isVerified) return <Navigate to="/" />
+  if (currentUser?.isVerified) return <Navigate to="/" />;
 
   return currentUser && !loading ? (
     <div
@@ -107,7 +130,8 @@ function Register() {
           Please enter the one time password to verify your account
         </h3>
         <p className="text-center">
-          {(!otpExpired && otpSent) && `A code has been sent to ${convertEmail(currentUser?.email)}`}
+          {!otpExpired &&
+            `A code has been sent to ${convertEmail(currentUser?.email)}`}
         </p>
         <div className="d-flex justify-content-center">
           <OtpInput
@@ -125,11 +149,11 @@ function Register() {
           />
         </div>
         <div className="text-center my-3">
-          <Button onClick={validateEmail} variant="danger" disabled={sending}>
+          <Button onClick={validateEmail} variant="danger" disabled={validate}>
             Validate
           </Button>
         </div>
-        {(!otpExpired && otpSent) && (
+        {!otpExpired && (
           <h6 className="text-center my-3">
             Resend OTP in{" "}
             <span className="text-danger">
@@ -140,7 +164,7 @@ function Register() {
         {sending ? (
           <p className="text-center">Sending...</p>
         ) : (
-          (!otpSent || otpExpired) && (
+          otpExpired && (
             <div className="text-center">
               <span className="clickable" onClick={resendEmail}>
                 Resend OTP
