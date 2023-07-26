@@ -12,7 +12,6 @@ import { formatCountdown } from "../utils/formatCountdown";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import moment from "moment";
 
 const schema = z.object({
   name: z.string().trim().min(4).max(50),
@@ -41,13 +40,14 @@ function Register() {
     const user = userService.getUser();
     if (user) setCurrentUser(user.data);
 
+    if (count > 0)  setCountdown((prev) => prev - 1);
     if (count < 0) setOtpExpired(true);
   }, []);
 
   useEffect(() => {
     let timer;
 
-    if (count === 0) {
+    if (count <= 0) {
       setOtpExpired(true);
       setOtp("");
     }
@@ -91,6 +91,7 @@ function Register() {
       setValidate(true);
       const { data } = await userService.verifyEmail({ email: currentUser.email, otp, });
       userService.setUser(data);
+      setOtpExpired(false);
       toast.success("Login successful!");
       navigate("/");
     } catch (error) {

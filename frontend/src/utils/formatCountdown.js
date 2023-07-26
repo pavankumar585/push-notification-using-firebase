@@ -1,3 +1,3 @@
 export const formatCountdown = (seconds) => {
-  return seconds.toString().padStart(2, "0");
+  return seconds?.toString()?.padStart(2, "0");
 };
